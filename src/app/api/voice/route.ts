@@ -10,7 +10,7 @@ const intentSchema: Schema = {
   properties: {
     intent: {
       type: SchemaType.STRING,
-      description: "One of: ADD_ITEM, REMOVE_ITEM, UPDATE_QUANTITY, VIEW_LIST, CLEAR_LIST, SEARCH_PRODUCT, GET_RECOMMENDATIONS, UNKNOWN",
+      description: "One of: ADD_ITEM, REMOVE_ITEM, UPDATE_QUANTITY, VIEW_LIST, CLEAR_LIST, SEARCH_PRODUCT, GET_RECOMMENDATIONS, CREATE_LIST, UNKNOWN",
     },
     product: {
       type: SchemaType.STRING,
@@ -37,6 +37,22 @@ const intentSchema: Schema = {
       type: SchemaType.NUMBER,
       description: "Maximum price constraint if mentioned",
       nullable: true
+    },
+    listName: {
+      type: SchemaType.STRING,
+      description: "Name of the new shopping list to create (e.g., 'camping', 'groceries')",
+      nullable: true
+    },
+    category: {
+      type: SchemaType.STRING,
+      description: "The supermarket aisle/category of the product (e.g., 'Produce', 'Dairy', 'Snacks', 'Meat'). Used when ADD_ITEM.",
+      nullable: true
+    },
+    suggestions: {
+      type: SchemaType.ARRAY,
+      items: { type: SchemaType.STRING },
+      description: "A list of 3-4 smart product suggestions or substitutes based on their current shopping list and this command.",
+      nullable: true
     }
   },
   required: ["intent"],
@@ -44,7 +60,7 @@ const intentSchema: Schema = {
 
 export async function POST(req: Request) {
   try {
-    const { transcript, sessionId } = await req.json();
+    const { transcript, sessionId, currentList = [] } = await req.json();
 
     if (!transcript || !sessionId) {
       return NextResponse.json({ error: 'Missing transcript or sessionId' }, { status: 400 });
@@ -67,8 +83,13 @@ You are a Voice Command Shopping Assistant.
 Parse the following user voice transcript into a structured JSON intent.
 Transcript: "${transcript}"
 
-Normalize units to singular standard forms (e.g., 'bottles' -> 'bottle', 'kgs' -> 'kg').
-If the intent is not clear, return UNKNOWN.
+Current items in their shopping list: [${currentList.join(', ')}]
+
+Instructions:
+1. Normalize units to singular standard forms.
+2. If intent is ADD_ITEM, infer the likely supermarket 'category' for the item.
+3. Provide 3-4 smart 'suggestions' of complementary products or substitutes they might need based on their current list and this command.
+4. If intent is not clear, return UNKNOWN.
     `;
 
     const result = await model.generateContent(prompt);
@@ -81,9 +102,10 @@ If the intent is not clear, return UNKNOWN.
       return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
     }
 
-    const { intent, product, quantity, unit } = parsedIntent;
+    const { intent, product, quantity, unit, listName, category, suggestions, maxPrice } = parsedIntent;
     let message = 'Command not understood.';
     let actionTaken = intent;
+    let searchResults: any[] = [];
 
     switch (intent) {
       case 'ADD_ITEM':
@@ -101,6 +123,7 @@ If the intent is not clear, return UNKNOWN.
             sessionId,
             productId: matchedProduct?.id || null,
             rawProductName: product,
+            category: category || 'Uncategorized',
             quantity: quantity || 1,
             unit: unit || 'item'
           }
@@ -131,7 +154,31 @@ If the intent is not clear, return UNKNOWN.
         message = 'Cleared your shopping list.';
         break;
 
+      case 'CREATE_LIST':
+        if (!listName) {
+          message = 'What do you want to name the new list?';
+          break;
+        }
+        message = `Created new shopping list for ${listName}.`;
+        break;
+
       case 'SEARCH_PRODUCT':
+        const searchWhere: any = {};
+        if (product) searchWhere.name = { contains: product };
+        if (maxPrice) searchWhere.price = { lte: maxPrice };
+        
+        searchResults = await prisma.product.findMany({ 
+          where: searchWhere,
+          take: 10
+        });
+
+        if (searchResults.length > 0) {
+          message = `Found ${searchResults.length} results${product ? ` for ${product}` : ''}${maxPrice ? ` under $${maxPrice}` : ''}.`;
+        } else {
+          message = `I couldn't find any products matching your search.`;
+        }
+        break;
+
       case 'GET_RECOMMENDATIONS':
       case 'VIEW_LIST':
       case 'UPDATE_QUANTITY':
@@ -141,13 +188,20 @@ If the intent is not clear, return UNKNOWN.
         break;
     }
 
-    // Return the updated list alongside the message
+    // Return the updated list alongside the message and suggestions
     const updatedList = await prisma.shoppingListItem.findMany({
       where: { sessionId },
       include: { product: true }
     });
 
-    return NextResponse.json({ action: actionTaken, message, list: updatedList });
+    return NextResponse.json({ 
+      action: actionTaken, 
+      message, 
+      list: updatedList, 
+      listName, 
+      suggestions: suggestions || [],
+      searchResults 
+    });
 
   } catch (error: any) {
     console.error("Error processing voice command:", error);

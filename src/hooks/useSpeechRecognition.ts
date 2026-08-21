@@ -29,7 +29,7 @@ export const useSpeechRecognition = (onCommand: (text: string) => void) => {
     const recognitionInstance = new SpeechRecognition();
     recognitionInstance.continuous = false;
     recognitionInstance.interimResults = true;
-    recognitionInstance.lang = 'en-US';
+    recognitionInstance.lang = navigator.language || 'en-US';
 
     recognitionInstance.onresult = (event: any) => {
       let currentTranscript = '';
@@ -49,8 +49,12 @@ export const useSpeechRecognition = (onCommand: (text: string) => void) => {
       console.error('Speech recognition error', event.error);
       if (event.error === 'network') {
         setError('Browser speech API network error. Please use standard Google Chrome or Edge.');
+      } else if (event.error === 'no-speech') {
+        setError('No speech detected. Please try again.');
+        setTimeout(() => setError(''), 4000);
       } else {
         setError(`Speech error: ${event.error}`);
+        setTimeout(() => setError(''), 5000);
       }
       setIsListening(false);
     };
