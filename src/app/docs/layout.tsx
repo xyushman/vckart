@@ -19,7 +19,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-[var(--text-secondary)]">
               <Link href="/docs" className="text-[var(--foreground)]">Docs</Link>
-              <Link href="/app" className="hover:text-[var(--foreground)] transition-colors">Product</Link>
+              <Link href="/assistant" className="hover:text-[var(--foreground)] transition-colors">Product</Link>
               <Link href="#architecture" className="hover:text-[var(--foreground)] transition-colors">Architecture</Link>
               <Link href="#api" className="hover:text-[var(--foreground)] transition-colors">API</Link>
               <Link href="#roadmap" className="hover:text-[var(--foreground)] transition-colors">Roadmap</Link>
