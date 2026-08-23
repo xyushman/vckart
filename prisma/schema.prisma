@@ -17,13 +17,32 @@ model Product {
   id                 Int                  @id @default(autoincrement())
   name               String
   category           String
-  price              Float
+  price              Float                // Base/average price
   imageUrl           String?
   source             String               @default("admin")
   sourceProductId    String?
   availability       Boolean              @default(true)
   attributes         Json?                // Stores dynamic filters like size, color, material
+  
+  // Advanced Commerce Fields
+  rating             Float?
+  reviewCount        Int?                 @default(0)
+  deliveryTime       String?              @default("Standard")
+  tags               String[]             // e.g. ["organic", "bestseller"]
+
   ShoppingListItem   ShoppingListItem[]
+  StoreListings      StoreListing[]
+}
+
+model StoreListing {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  provider    String   // 'Amazon', 'Flipkart', 'Google Shopping'
+  price       Float
+  url         String?
+  availability Boolean @default(true)
+  
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model ShoppingListItem {
