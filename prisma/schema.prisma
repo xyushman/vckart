@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Product {
@@ -13,6 +13,10 @@ model Product {
   category           String
   price              Float
   imageUrl           String?
+  source             String               @default("admin")
+  sourceProductId    String?
+  availability       Boolean              @default(true)
+  attributes         Json?                // Stores dynamic filters like size, color, material
   ShoppingListItem   ShoppingListItem[]
 }
 
@@ -28,6 +32,24 @@ model ShoppingListItem {
   isPurchased      Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+model ConversationSession {
+  id          String   @id @default(cuid())
+  sessionId   String   @unique
+  state       Json     // Stores the entire ConversationState (filters, query, awaitingInput)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ConversationMessage {
+  id          String   @id @default(cuid())
+  sessionId   String
+  role        String   // 'user' | 'assistant'
+  message     String
+  intent      String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
 }
 
 // ------------------------------------------------------
