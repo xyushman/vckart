@@ -1,6 +1,10 @@
 # VCKart: The Future of Conversational Commerce
 
+[![Deployed on Vercel](https://vercelbutton.com/api/button.svg)](https://vckart-gamma.vercel.app/)
+
 Hey there! 👋 Welcome to VCKart. We're incredibly excited you're here. 
+
+**[🚀 Try the Live Demo here!](https://vckart-gamma.vercel.app/)** *(You can easily test the app using the "Continue as Guest" button—no account required!)*
 
 VCKart isn't just another shopping app or a basic digital grocery list. We built this platform because we believe the way we shop online is broken. Think about it—when you walk into a real store, you don't scroll through endless grids of data. You find an assistant and say, *"Hey, I'm looking for a black cotton shirt under 1,500 rupees."* 
 
@@ -68,6 +72,16 @@ We didn't just want this to work well; we wanted it to be lightning fast and vis
   - `Product`: A highly normalized catalog using dynamic JSON schemas for category-agnostic attributes.
   - `StoreListing`: Supports cross-store inventory mappings (e.g., pulling prices from D-Mart vs BlinkIt).
   - `ConversationSession`: Persists the AI's search state and contextual memory across page reloads.
+
+---
+
+## 🗺️ Application Structure
+
+VCKart is actually three tightly integrated applications in one repository:
+
+1. **The Voice Assistant (`/assistant`)**: The flagship consumer interface where users speak and shop. Includes the interactive shopping list (`/shopping-list`).
+2. **The Admin Dashboard (`/admin`)**: A comprehensive internal tool for managing users, overriding product inventory, and tracking platform analytics.
+3. **The Developer Documentation (`/docs`)**: A beautiful, interactive Next.js-powered documentation site detailing the system architecture and AI endpoints.
 
 ---
 
