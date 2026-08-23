@@ -54,27 +54,24 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             <div className="flex flex-col gap-3">
               <h4 className="text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase">Getting Started</h4>
               <Link href="#introduction" className="flex items-center gap-2 text-sm text-[var(--accent)] font-medium bg-[var(--accent)]/10 border-l-2 border-[var(--accent)] -ml-6 pl-[22px] py-1.5 transition-colors">
-                <Hash className="w-4 h-4" /> Introduction
-              </Link>
-              <Link href="#vision" className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
-                <Hash className="w-4 h-4" /> Vision
+                <Hash className="w-4 h-4" /> Platform Overview
               </Link>
             </div>
 
             <div className="flex flex-col gap-3">
-              <h4 className="text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase">Product</h4>
-              <Link href="#voice" className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
-                <Hash className="w-4 h-4" /> Voice Shopping
+              <h4 className="text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase">Architecture</h4>
+              <Link href="#architecture" className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
+                <Hash className="w-4 h-4" /> System Architecture
               </Link>
-              <Link href="#how-it-works" className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
-                <Hash className="w-4 h-4" /> How It Works
+              <Link href="#ai-intents" className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
+                <Hash className="w-4 h-4" /> NLP & AI Intents
               </Link>
             </div>
 
             <div className="flex flex-col gap-3">
-              <h4 className="text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase">Platform</h4>
-              <Link href="#inventory" className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
-                <Hash className="w-4 h-4" /> Platform Tools
+              <h4 className="text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase">Data Layer</h4>
+              <Link href="#database" className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors">
+                <Hash className="w-4 h-4" /> PostgreSQL Schema
               </Link>
             </div>
             

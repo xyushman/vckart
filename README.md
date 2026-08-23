@@ -48,11 +48,26 @@ Behind the scenes, we aren't just built for groceries. Our architecture uses dyn
 
 ---
 
-## 🏗️ How We Built It (The Tech Stack)
+## 🏗️ How We Built It (System Architecture)
 We didn't just want this to work well; we wanted it to be lightning fast and visually stunning.
-- **Frontend:** Next.js 16 (App Router), React 19, and Tailwind CSS v4 for a buttery smooth, mobile-responsive UI.
-- **Backend Architecture:** A highly scalable Next.js API powered by PostgreSQL (via Neon) and the Prisma ORM.
-- **The Brains:** Google Gemini 2.5 Flash for rapid natural language processing, paired with the browser's native Web Speech API for zero-latency voice streaming.
+
+### Frontend
+- **Framework:** Next.js 16 (App Router) with React 19 for instantaneous Server-Side Rendering (SSR).
+- **Styling:** Tailwind CSS v4 in a premium, hand-crafted Dark Mode UI.
+- **Voice:** Native Browser Web Speech API for low-latency streaming transcription.
+
+### AI / NLP Pipeline
+- **Engine:** Google Gemini 2.5 Flash acts as the brain.
+- **Intent Mapping:** User queries are mapped to strict JSON intent schemas (e.g., `PRODUCT_SEARCH`, `FILTER_UPDATE`, `ADD_TO_LIST`, `COMPARE_PRODUCTS`).
+- **Contextual State:** The AI maintains a continuous conversation state (remembering previous filters and categories) so users can refine searches naturally.
+
+### Database & Backend
+- **Database:** PostgreSQL (hosted via Neon) managed by Prisma ORM.
+- **Core Models:** 
+  - `User`: Handles multi-tenant authentication for regular users and admins.
+  - `Product`: A highly normalized catalog using dynamic JSON schemas for category-agnostic attributes.
+  - `StoreListing`: Supports cross-store inventory mappings (e.g., pulling prices from D-Mart vs BlinkIt).
+  - `ConversationSession`: Persists the AI's search state and contextual memory across page reloads.
 
 ---
 
