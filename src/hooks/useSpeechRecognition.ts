@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-export const useSpeechRecognition = (onCommand: (text: string) => void) => {
+export const useSpeechRecognition = (onCommand: (text: string) => void, lang: string = 'en-US') => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [supported, setSupported] = useState(true);
@@ -29,7 +29,7 @@ export const useSpeechRecognition = (onCommand: (text: string) => void) => {
     const recognitionInstance = new SpeechRecognition();
     recognitionInstance.continuous = false;
     recognitionInstance.interimResults = true;
-    recognitionInstance.lang = navigator.language || 'en-US';
+    recognitionInstance.lang = lang;
 
     recognitionInstance.onresult = (event: any) => {
       let currentTranscript = '';
@@ -64,7 +64,7 @@ export const useSpeechRecognition = (onCommand: (text: string) => void) => {
     };
 
     setRecognition(recognitionInstance);
-  }, []);
+  }, [lang]);
 
   const startListening = useCallback(() => {
     if (recognition) {
