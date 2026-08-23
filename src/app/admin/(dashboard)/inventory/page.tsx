@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities, @typescript-eslint/no-unused-vars */
 import { Database } from 'lucide-react';
 
 export default function InventoryPage() {

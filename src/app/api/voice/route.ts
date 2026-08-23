@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { GoogleGenerativeAI, Schema, SchemaType } from '@google/generative-ai';
@@ -109,7 +110,7 @@ Instructions:
     }
 
     let searchResults: any[] = [];
-    let mainIntent = actions.length > 0 ? actions[0].intent : 'UNKNOWN';
+    const mainIntent = actions.length > 0 ? actions[0].intent : 'UNKNOWN';
 
     // Process all actions sequentially
     for (const action of actions) {

@@ -79,7 +79,7 @@ const handler = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        // @ts-ignore
+        // @ts-expect-error: NextAuth types are inflexible
         token.role = user.role;
       } else {
         // Look up the user's latest role from the database to keep token fresh
@@ -94,9 +94,9 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       if (token && session.user) {
-        // @ts-ignore
+        // @ts-expect-error: NextAuth types are inflexible
         session.user.id = token.id as string;
-        // @ts-ignore
+        // @ts-expect-error: NextAuth types are inflexible
         session.user.role = token.role as string;
       }
       return session;
