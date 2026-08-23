@@ -21,6 +21,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   results?: Product[];
+  state?: any;
 }
 
 export default function AssistantWorkspace() {
@@ -115,7 +116,8 @@ export default function AssistantWorkspace() {
         id: Date.now().toString(), 
         role: 'assistant', 
         content: data.message,
-        results: data.results || undefined
+        results: data.results || undefined,
+        state: data.state
       }]);
       
       if ('speechSynthesis' in window) {
@@ -279,8 +281,69 @@ export default function AssistantWorkspace() {
                     {msg.content}
                   </div>
 
+                  {/* Clarification Chips */}
+                  {msg.state?.intent === 'CLARIFICATION_REQUIRED' && msg.state?.clarificationOptions && (
+                    <div className="flex flex-wrap gap-2 mt-1 ml-2">
+                      {msg.state.clarificationOptions.map((opt: string) => (
+                        <button 
+                          key={opt} 
+                          onClick={() => processTranscript(opt)} 
+                          className="px-3 py-1.5 bg-[var(--surface-3)] border border-[var(--border)] rounded-full text-xs font-medium hover:border-[var(--accent)] text-[var(--foreground)] transition-colors"
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Compare Widget */}
+                  {msg.state?.intent === 'COMPARE_PRODUCTS' && msg.results && msg.results.length >= 2 && (
+                    <div className="mt-2 ml-2 w-full max-w-lg bg-[var(--surface-2)] border border-[var(--border)] rounded-xl overflow-hidden shadow-sm text-sm animate-in fade-in zoom-in">
+                      <div className="grid grid-cols-3 bg-[var(--surface-3)] border-b border-[var(--border)] p-3 font-semibold text-xs text-[var(--text-secondary)] uppercase tracking-wider">
+                        <div>Feature</div>
+                        <div className="truncate pr-2" title={msg.results[0].name}>{msg.results[0].name}</div>
+                        <div className="truncate pr-2" title={msg.results[1].name}>{msg.results[1].name}</div>
+                      </div>
+                      <div className="grid grid-cols-3 p-3 border-b border-[var(--border)]">
+                        <div className="text-[var(--text-secondary)] font-medium">Price</div>
+                        <div className="font-bold text-[var(--foreground)]">₹{msg.results[0].price}</div>
+                        <div className="font-bold text-[var(--foreground)]">₹{msg.results[1].price}</div>
+                      </div>
+                      <div className="grid grid-cols-3 p-3 border-b border-[var(--border)]">
+                        <div className="text-[var(--text-secondary)] font-medium">Rating</div>
+                        <div>{msg.results[0].attributes?.rating || '4.5'} ⭐</div>
+                        <div>{msg.results[1].attributes?.rating || '4.2'} ⭐</div>
+                      </div>
+                      <div className="grid grid-cols-3 p-3 border-b border-[var(--border)]">
+                        <div className="text-[var(--text-secondary)] font-medium">Brand</div>
+                        <div>{msg.results[0].attributes?.brand || '-'}</div>
+                        <div>{msg.results[1].attributes?.brand || '-'}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Suggested Items Widget */}
+                  {msg.state?.intent === 'SUGGEST_ADDITIONS' && msg.state?.suggestedItems && (
+                    <div className="mt-2 ml-2 w-full max-w-sm bg-[var(--surface-2)] border border-[var(--border)] rounded-xl overflow-hidden shadow-sm p-4 animate-in fade-in zoom-in">
+                      <h4 className="text-sm font-semibold mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-[var(--accent)]"/> Recommended Additions</h4>
+                      <div className="space-y-2">
+                        {msg.state.suggestedItems.map((item: string) => (
+                          <div key={item} className="flex items-center justify-between p-2 rounded-lg bg-[var(--surface-3)] border border-[var(--border)] hover:border-[var(--accent)]/50 transition-colors">
+                            <span className="text-sm font-medium">{item}</span>
+                            <button 
+                              onClick={() => processTranscript(`Add ${item}`)} 
+                              className="text-xs bg-[var(--accent)] text-white px-3 py-1 rounded hover:bg-[var(--accent-hover)] transition-colors"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Inline Product Results */}
-                  {msg.results && msg.results.length > 0 && (
+                  {msg.results && msg.results.length > 0 && msg.state?.intent !== 'COMPARE_PRODUCTS' && (
                     <div className="w-full flex flex-col gap-3 mt-2 pl-2">
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {msg.results.map((prod) => (
@@ -305,11 +368,26 @@ export default function AssistantWorkspace() {
                                 {prod.attributes?.size && <span className="text-[10px] text-[var(--text-muted)] border border-[var(--border)] px-1.5 rounded">{prod.attributes.size}</span>}
                               </div>
                               
-                              <div className="flex items-center justify-between mt-2 pt-2 border-t border-[var(--border)]">
+                              <div className="flex items-center justify-between mt-2 pt-2 border-t border-[var(--border)] mb-2">
                                 <span className="font-bold text-[var(--accent)]">₹{prod.price}</span>
                                 <button className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors">Add</button>
                               </div>
                             </div>
+                            
+                            {/* Cross-Store Widget */}
+                            {prod.attributes?.storeListings && (
+                              <div className="px-3 pb-3 pt-2 border-t border-[var(--border)] flex flex-col gap-1 bg-[var(--surface-2)] mt-auto">
+                                <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider flex items-center justify-between">
+                                  Other Stores
+                                </span>
+                                {prod.attributes.storeListings.map((sl: any, i: number) => (
+                                  <div key={i} className="flex items-center justify-between text-xs">
+                                    <span className="text-[var(--text-secondary)]">{sl.provider}</span>
+                                    <span className="font-medium">₹{sl.price}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -397,18 +475,35 @@ export default function AssistantWorkspace() {
                 </div>
               </div>
             ) : (
-              list.map(item => (
-                <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)]/30 transition-colors">
-                  <div className="w-10 h-10 rounded-lg bg-[var(--surface-3)] overflow-hidden shrink-0 border border-[var(--border)]">
-                    <img 
-                      src={item.product?.imageUrl || `https://image.pollinations.ai/prompt/${encodeURIComponent(item.rawProductName + ' minimal grocery isolated')}?width=100&height=100&nologo=true&seed=${item.id}`} 
-                      alt={item.rawProductName} 
-                      className="w-full h-full object-cover" 
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm capitalize truncate">{item.rawProductName}</p>
-                    <p className="text-xs text-[var(--text-muted)]">{item.quantity} {item.unit}</p>
+              Object.entries(
+                list.reduce((acc, item) => {
+                  const cat = item.category || 'Uncategorized';
+                  if (!acc[cat]) acc[cat] = [];
+                  acc[cat].push(item);
+                  return acc;
+                }, {} as Record<string, any[]>)
+              ).map(([category, items]) => (
+                <div key={category} className="mb-4 last:mb-0">
+                  <h4 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]"></span>
+                    {category}
+                  </h4>
+                  <div className="space-y-2">
+                    {(items as any[]).map(item => (
+                      <div key={item.id} className="flex items-center gap-3 p-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)]/30 transition-colors">
+                        <div className="w-10 h-10 rounded-lg bg-[var(--surface-3)] overflow-hidden shrink-0 border border-[var(--border)]">
+                          <img 
+                            src={item.product?.imageUrl || `https://image.pollinations.ai/prompt/${encodeURIComponent(item.rawProductName + ' minimal grocery isolated')}?width=100&height=100&nologo=true&seed=${item.id}`} 
+                            alt={item.rawProductName} 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm capitalize truncate leading-tight">{item.rawProductName}</p>
+                          <p className="text-xs text-[var(--text-muted)]">{item.quantity} {item.unit}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))
