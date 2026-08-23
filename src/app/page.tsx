@@ -18,10 +18,10 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <ThemeToggle />
-            <Link href="/api/auth/signin" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
+            <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
               Log in
             </Link>
-            <Link href="/app">
+            <Link href="/assistant">
               <Button size="sm" className="h-8 rounded-full px-4">
                 Open App
               </Button>
@@ -50,7 +50,7 @@ export default function LandingPage() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
-            <Link href="/app">
+            <Link href="/assistant">
               <Button size="lg" className="rounded-full h-12 px-8 text-base">
                 Start for free <ArrowRight className="ml-2 w-4 h-4" />
               </Button>

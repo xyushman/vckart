@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 import { Mic, Search, Settings, X, Plus, ShoppingBag, Loader2, Sparkles, Filter, Info, ChevronRight, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -23,8 +24,12 @@ interface Message {
 }
 
 export default function AssistantWorkspace() {
+  const { data: session } = useSession();
   const [sessionId] = useState(`session-${Math.random().toString(36).substring(7)}`);
   
+  // Extract just the first name for the greeting, fallback to an empty string
+  const firstName = session?.user?.name ? session.user.name.split(' ')[0] : '';
+
   // Core States
   const [list, setList] = useState<any[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -214,7 +219,9 @@ export default function AssistantWorkspace() {
             // EMPTY STATE (Centered)
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 pb-32 animate-in fade-in duration-700">
               <Sparkles className="w-6 h-6 text-[var(--accent)] mb-6 opacity-80" />
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 text-center">Good evening, Alex.</h2>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 text-center">
+                Good evening{firstName ? `, ${firstName}` : ''}.
+              </h2>
               <p className="text-[var(--text-secondary)] text-sm md:text-base text-center mb-10">What can I help you find today?</p>
               
               {/* Hero Voice Button */}
