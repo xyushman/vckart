@@ -11,7 +11,7 @@ const stateSchema: Schema = {
   properties: {
     intent: {
       type: SchemaType.STRING,
-      description: "One of: PRODUCT_SEARCH, FILTER_UPDATE, SELECT_PRODUCT, ADD_TO_LIST, UNKNOWN"
+      description: "One of: PRODUCT_SEARCH, FILTER_UPDATE, SELECT_PRODUCT, ADD_TO_LIST, COMPARE_PRODUCTS, CLARIFICATION_REQUIRED, SUGGEST_ADDITIONS, UNKNOWN"
     },
     category: { type: SchemaType.STRING, nullable: true },
     searchQuery: { type: SchemaType.STRING, nullable: true },
@@ -21,17 +21,30 @@ const stateSchema: Schema = {
         brand: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, nullable: true },
         maxPrice: { type: SchemaType.NUMBER, nullable: true },
         type: { type: SchemaType.STRING, nullable: true },
-        size: { type: SchemaType.STRING, nullable: true }
+        size: { type: SchemaType.STRING, nullable: true },
+        color: { type: SchemaType.STRING, nullable: true }
       },
       nullable: true
     },
     quantity: { type: SchemaType.INTEGER, nullable: true },
     unit: { type: SchemaType.STRING, nullable: true },
-    sort: { type: SchemaType.STRING, description: "price_asc, price_desc, relevance", nullable: true },
+    sort: { type: SchemaType.STRING, description: "price_asc, price_desc, best_value, relevance", nullable: true },
     selectedProductId: { type: SchemaType.NUMBER, description: "ID of the product if the user explicitly selected one from the current results", nullable: true },
+    clarificationOptions: {
+      type: SchemaType.ARRAY,
+      items: { type: SchemaType.STRING },
+      description: "If intent is CLARIFICATION_REQUIRED, provide a short list of options the user can tap (e.g. ['Under ₹500', '₹500-₹1000'] or ['Red', 'Blue'])",
+      nullable: true
+    },
+    suggestedItems: {
+      type: SchemaType.ARRAY,
+      items: { type: SchemaType.STRING },
+      description: "If intent is SUGGEST_ADDITIONS, list items to suggest.",
+      nullable: true
+    },
     replyMessage: {
       type: SchemaType.STRING,
-      description: "Conversational response (e.g., 'I found 8 options. What would you like to refine?'). MUST be in the user's language."
+      description: "Conversational response (e.g., 'I found 8 options. Do you have a color preference?'). MUST be in the user's language."
     },
     awaitingInput: { type: SchemaType.BOOLEAN, description: "True if waiting for user to select or refine." }
   },
@@ -74,12 +87,13 @@ Existing State: ${JSON.stringify(currentState)}
 User's New Utterance: "${transcript}"
 
 Rules:
-1. If they say "I need sugar", set intent=PRODUCT_SEARCH, searchQuery="sugar".
-2. If they say "Under 250", KEEP existing searchQuery="sugar" and add filters.maxPrice=250.
-3. If they say "Choose the first one", set intent=SELECT_PRODUCT and infer selectedProductId from context if possible (leave null if unknown, the UI handles index selection natively but API can try).
+1. If the user's query is broad (e.g., "Find me shoes"), set intent=CLARIFICATION_REQUIRED and ask a clarifying question in 'replyMessage' (e.g., "What kind of shoes? Running or casual?"). Set 'clarificationOptions' to a list of likely choices.
+2. If they ask to "compare the top two", set intent=COMPARE_PRODUCTS.
+3. If they ask for the "best one" or "best value", set sort="best_value".
 4. If they say "Add it", set intent=ADD_TO_LIST.
-5. You MUST respond conversationally in 'replyMessage' (e.g., "I found some options. Want to filter by brand?").
-6. If they ask to search, DO NOT automatically select or add. Just search and wait.
+5. If they say "I'm making pasta", set intent=SUGGEST_ADDITIONS and suggest missing ingredients in 'suggestedItems'.
+6. ALWAYS respond conversationally in 'replyMessage' in the user's language (Multilingual support).
+7. If intent is CLARIFICATION_REQUIRED, you must provide 'clarificationOptions'.
     `;
 
     const result = await model.generateContent(prompt);
@@ -102,14 +116,15 @@ Rules:
     let finalMessage = parsedState.replyMessage;
 
     // Execute Actions based on Intent
-    if (newState.intent === 'PRODUCT_SEARCH' || newState.intent === 'FILTER_UPDATE') {
+    if (['PRODUCT_SEARCH', 'FILTER_UPDATE', 'CLARIFICATION_REQUIRED', 'COMPARE_PRODUCTS'].includes(newState.intent)) {
       const searchWhere: any = {};
       if (newState.searchQuery) searchWhere.name = { contains: newState.searchQuery, mode: 'insensitive' };
       if (newState.filters?.maxPrice) searchWhere.price = { lte: newState.filters.maxPrice };
       
-      // Dynamic JSON attribute filtering (PostgreSQL JSON path queries are complex, we'll do simple filtering in memory for MVP)
+      // Fetch products including StoreListings for cross-store capability
       let rawResults = await prisma.product.findMany({ 
         where: searchWhere,
+        include: { StoreListings: true },
         take: 50 
       });
 
@@ -132,12 +147,20 @@ Rules:
       // Sort
       if (newState.sort === 'price_asc') rawResults.sort((a, b) => a.price - b.price);
       if (newState.sort === 'price_desc') rawResults.sort((a, b) => b.price - a.price);
+      if (newState.sort === 'best_value') {
+         // Best Value Intelligence Algorithm: (Rating * 10) - (Price / 100) + (ReviewCount / 1000)
+         rawResults.sort((a, b) => {
+            const scoreA = ((a.rating || 3) * 10) - (a.price / 100) + ((a.reviewCount || 0) / 1000);
+            const scoreB = ((b.rating || 3) * 10) - (b.price / 100) + ((b.reviewCount || 0) / 1000);
+            return scoreB - scoreA;
+         });
+      }
 
       searchResults = rawResults.slice(0, 10);
       
-      // Update message if Gemini didn't know the exact count
-      if (!finalMessage.includes(searchResults.length.toString())) {
-         finalMessage = `I found ${searchResults.length} options for ${newState.searchQuery || 'that'}. ${searchResults.length > 0 ? 'Would you like to refine by brand or price?' : ''}`;
+      // Only append search count if we are actually searching/filtering, not just clarifying vaguely
+      if (newState.intent !== 'CLARIFICATION_REQUIRED' && !finalMessage.includes(searchResults.length.toString())) {
+         finalMessage = `I found ${searchResults.length} options for ${newState.searchQuery || 'that'}. ${searchResults.length > 0 ? 'Would you like to refine your search?' : ''}`;
       }
       
       newState.currentResults = searchResults;
