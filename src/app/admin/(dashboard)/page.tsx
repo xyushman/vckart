@@ -1,122 +1,131 @@
-import { prisma } from '@/lib/db';
-import { Database, RefreshCw, Users, MessageSquare, TrendingUp, Search } from 'lucide-react';
+import { Package, TrendingUp, Search, Activity, Box, RefreshCw, AlertCircle, Sparkles } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 
-export default async function AdminDashboard() {
-  const products = await prisma.product.findMany({
-    orderBy: { category: 'asc' }
-  });
-
+export default function AdminDashboard() {
   return (
-    <div className="flex flex-col gap-10 p-6 md:p-10 max-w-7xl mx-auto w-full animate-in fade-in">
-      
-      <header className="flex flex-col gap-2 border-b border-[var(--border)] pb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-[var(--foreground)]">Overview</h1>
-        <p className="text-[var(--text-secondary)]">High-level metrics for your VCKart conversational commerce platform.</p>
-      </header>
-
-      {/* Top Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[var(--surface)] border border-[var(--border)] p-6 rounded-2xl flex flex-col gap-1 hover:border-[var(--accent)]/50 transition-colors">
-          <p className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2"><Database className="w-4 h-4 text-[var(--accent)]" /> Total Products</p>
-          <h2 className="text-4xl font-bold">{products.length}</h2>
-          <p className="text-xs text-[var(--success)] mt-2 font-medium">+12% from last month</p>
+    <div className="p-8 space-y-8 animate-in fade-in">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Product Intelligence</h1>
+          <p className="text-[var(--text-secondary)] mt-1">Overview of your AI conversational commerce engine.</p>
         </div>
-        <div className="bg-[var(--surface)] border border-[var(--border)] p-6 rounded-2xl flex flex-col gap-1 hover:border-[var(--accent)]/50 transition-colors">
-          <p className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2"><Users className="w-4 h-4 text-[var(--warning)]" /> Active Users</p>
-          <h2 className="text-4xl font-bold">1,248</h2>
-          <p className="text-xs text-[var(--success)] mt-2 font-medium">+5% from last month</p>
-        </div>
-        <div className="bg-[var(--surface)] border border-[var(--border)] p-6 rounded-2xl flex flex-col gap-1 hover:border-[var(--accent)]/50 transition-colors">
-          <p className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2"><MessageSquare className="w-4 h-4 text-[var(--info)]" /> Voice Searches</p>
-          <h2 className="text-4xl font-bold">18,421</h2>
-          <p className="text-xs text-[var(--success)] mt-2 font-medium">94.2% success rate</p>
-        </div>
-        <div className="bg-[var(--surface)] border border-[var(--border)] p-6 rounded-2xl flex flex-col gap-1 hover:border-[var(--accent)]/50 transition-colors justify-between">
-          <p className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2 flex items-center gap-2"><RefreshCw className="w-4 h-4 text-[var(--text-secondary)]" /> Last Sync</p>
-          <h2 className="text-2xl font-bold">Just now</h2>
-          <p className="text-xs text-[var(--text-secondary)] mt-2 font-medium">All sources healthy</p>
+        <div className="flex items-center gap-2">
+          <span className="flex items-center gap-2 text-sm px-3 py-1.5 bg-[var(--surface-3)] border border-[var(--border)] rounded-full text-[var(--text-secondary)]">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--success)] opacity-40"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--success)]"></span>
+            </span>
+            System Healthy
+          </span>
         </div>
       </div>
 
-      {/* Product Sources */}
-      <div className="flex flex-col gap-4 mt-4">
-        <h2 className="text-xl font-bold tracking-tight text-[var(--foreground)] uppercase text-sm tracking-wider">Product Sources</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-[var(--surface)] border border-[var(--border)] p-5 rounded-xl flex flex-col gap-1 relative overflow-hidden">
-            <div className="absolute top-5 right-5 w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
-            <h3 className="font-bold text-lg text-[var(--foreground)]">Google</h3>
-            <p className="text-sm text-[var(--text-secondary)]">Product data connected</p>
-            <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center justify-between">
-              <span className="text-xs text-[var(--text-secondary)]">Last sync: 12 min ago</span>
-              <button className="text-xs font-semibold text-[var(--accent)] hover:underline">Sync now</button>
-            </div>
-          </div>
-          <div className="bg-[var(--surface)] border border-[var(--border)] p-5 rounded-xl flex flex-col gap-1 relative overflow-hidden">
-            <div className="absolute top-5 right-5 w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
-            <h3 className="font-bold text-lg text-[var(--foreground)]">Amazon</h3>
-            <p className="text-sm text-[var(--text-secondary)]">Product data connected</p>
-            <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center justify-between">
-              <span className="text-xs text-[var(--text-secondary)]">Last sync: 18 min ago</span>
-              <button className="text-xs font-semibold text-[var(--accent)] hover:underline">Sync now</button>
-            </div>
-          </div>
-          <div className="bg-[var(--surface)] border border-[var(--border)] p-5 rounded-xl flex flex-col gap-1 relative overflow-hidden">
-            <div className="absolute top-5 right-5 w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
-            <h3 className="font-bold text-lg text-[var(--foreground)]">Flipkart</h3>
-            <p className="text-sm text-[var(--text-secondary)]">Product data connected</p>
-            <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center justify-between">
-              <span className="text-xs text-[var(--text-secondary)]">Last sync: 22 min ago</span>
-              <button className="text-xs font-semibold text-[var(--accent)] hover:underline">Sync now</button>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-[var(--border)] shadow-sm bg-gradient-to-br from-[var(--surface)] to-[var(--surface-2)]">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Total Products</CardTitle>
+            <Box className="w-4 h-4 text-[var(--text-muted)]" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">12,482</div>
+            <p className="text-xs text-[var(--success)] flex items-center gap-1 mt-1 font-medium">
+              <TrendingUp className="w-3 h-3" /> +1,240 new this week
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-[var(--border)] shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Active Inventory</CardTitle>
+            <Package className="w-4 h-4 text-[var(--text-muted)]" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">11,904</div>
+            <p className="text-xs text-[var(--warning)] flex items-center gap-1 mt-1 font-medium">
+              <AlertCircle className="w-3 h-3" /> 184 low availability
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-[var(--border)] shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">AI Search Accuracy</CardTitle>
+            <Sparkles className="w-4 h-4 text-[var(--accent)]" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">94.2%</div>
+            <p className="text-xs text-[var(--success)] flex items-center gap-1 mt-1 font-medium">
+              <TrendingUp className="w-3 h-3" /> +2.4% from last month
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-[var(--border)] shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Price Changes</CardTitle>
+            <RefreshCw className="w-4 h-4 text-[var(--text-muted)]" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">327</div>
+            <p className="text-xs text-[var(--text-muted)] mt-1">
+              Synced in last 24h
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Quick Inventory Table */}
-      <div className="flex flex-col gap-4 mt-4">
-        <h2 className="text-xl font-bold tracking-tight text-[var(--foreground)]">Recent Inventory</h2>
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface-2)]">
-            <div className="flex items-center bg-[var(--background)] border border-[var(--border)] rounded-full px-4 py-2 text-sm w-full max-w-sm focus-within:border-[var(--accent)]/50 transition-colors">
-              <Search className="w-4 h-4 mr-2 text-[var(--text-muted)]" />
-              <input type="text" placeholder="Search catalog..." className="bg-transparent focus:outline-none w-full text-[var(--foreground)]" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        <Card className="border-[var(--border)] shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-[var(--foreground)] flex items-center gap-2">
+              <Search className="w-4 h-4" /> Top Voice Queries
+            </CardTitle>
+            <CardDescription className="text-[var(--text-secondary)]">Most common user intents mapped by NLP</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { query: "Find milk under ₹100", count: 482 },
+                { query: "I need black running shoes", count: 391 },
+                { query: "Buy organic rice", count: 342 },
+                { query: "Show cheap headphones", count: 291 },
+                { query: "Add 2kg sugar", count: 215 },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-3">
+                    <span className="w-5 h-5 rounded bg-[var(--surface-3)] flex items-center justify-center text-[10px] font-bold text-[var(--text-muted)]">{i+1}</span>
+                    <span className="font-medium text-[var(--foreground)]">"{item.query}"</span>
+                  </div>
+                  <span className="text-[var(--text-secondary)]">{item.count}</span>
+                </div>
+              ))}
             </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-[var(--text-muted)] uppercase tracking-wider bg-[var(--surface-3)] border-b border-[var(--border)]">
-                <tr>
-                  <th className="px-6 py-4 font-medium">Product</th>
-                  <th className="px-6 py-4 font-medium">Category</th>
-                  <th className="px-6 py-4 font-medium">Price</th>
-                  <th className="px-6 py-4 font-medium">Source</th>
-                  <th className="px-6 py-4 font-medium text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border)] text-[var(--foreground)]">
-                {products.slice(0, 10).map(prod => (
-                  <tr key={prod.id} className="hover:bg-[var(--surface-hover)] transition-colors">
-                    <td className="px-6 py-4 font-semibold">{prod.name}</td>
-                    <td className="px-6 py-4">{prod.category}</td>
-                    <td className="px-6 py-4 font-medium text-[var(--accent)]">₹{prod.price}</td>
-                    <td className="px-6 py-4 capitalize text-[var(--text-secondary)]">{prod.source}</td>
-                    <td className="px-6 py-4 text-right">
-                      {prod.availability ? (
-                        <span className="text-[var(--success)] flex items-center justify-end gap-2 text-xs font-bold uppercase tracking-wider">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]"></span> In Stock
-                        </span>
-                      ) : (
-                        <span className="text-[var(--error)] flex items-center justify-end gap-2 text-xs font-bold uppercase tracking-wider">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--error)]"></span> Out of Stock
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-[var(--border)] shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-[var(--foreground)] flex items-center gap-2 text-[var(--warning)]">
+              <AlertCircle className="w-4 h-4" /> Unresolved Queries
+            </CardTitle>
+            <CardDescription className="text-[var(--text-secondary)]">Queries where NLP confidence fell below 60%</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                "Find something like my usual...",
+                "Get my usual weekly order",
+                "Cheapest healthy breakfast option",
+                "I want a gift for a 5 year old",
+              ].map((q, i) => (
+                <div key={i} className="flex items-center gap-3 text-sm p-3 rounded-lg bg-[var(--surface-3)] border border-[var(--border)]">
+                  <span className="text-[var(--text-secondary)] italic">"{q}"</span>
+                </div>
+              ))}
+              <button className="w-full mt-4 text-xs font-semibold text-[var(--accent)] hover:underline">View 184 more missing intents →</button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
