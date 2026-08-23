@@ -60,6 +60,15 @@ export default function SignIn() {
               </svg>
               Continue with Google
             </Button>
+
+            <Button 
+              variant="outline" 
+              className="w-full h-10 border-[var(--border)] hover:bg-[var(--surface-hover)] text-[var(--foreground)]"
+              onClick={handleDemoSignIn}
+              type="button"
+            >
+              Continue as Guest
+            </Button>
             
             <div className="relative py-2">
               <div className="absolute inset-0 flex items-center">
