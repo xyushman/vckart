@@ -38,8 +38,42 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
+      {/* Product Sources */}
+      <div className="flex flex-col gap-4 mt-4">
+        <h2 className="text-xl font-bold tracking-tight text-[var(--foreground)] uppercase text-sm tracking-wider">Product Sources</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-[var(--surface)] border border-[var(--border)] p-5 rounded-xl flex flex-col gap-1 relative overflow-hidden">
+            <div className="absolute top-5 right-5 w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
+            <h3 className="font-bold text-lg text-[var(--foreground)]">Google</h3>
+            <p className="text-sm text-[var(--text-secondary)]">Product data connected</p>
+            <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center justify-between">
+              <span className="text-xs text-[var(--text-secondary)]">Last sync: 12 min ago</span>
+              <button className="text-xs font-semibold text-[var(--accent)] hover:underline">Sync now</button>
+            </div>
+          </div>
+          <div className="bg-[var(--surface)] border border-[var(--border)] p-5 rounded-xl flex flex-col gap-1 relative overflow-hidden">
+            <div className="absolute top-5 right-5 w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
+            <h3 className="font-bold text-lg text-[var(--foreground)]">Amazon</h3>
+            <p className="text-sm text-[var(--text-secondary)]">Product data connected</p>
+            <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center justify-between">
+              <span className="text-xs text-[var(--text-secondary)]">Last sync: 18 min ago</span>
+              <button className="text-xs font-semibold text-[var(--accent)] hover:underline">Sync now</button>
+            </div>
+          </div>
+          <div className="bg-[var(--surface)] border border-[var(--border)] p-5 rounded-xl flex flex-col gap-1 relative overflow-hidden">
+            <div className="absolute top-5 right-5 w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
+            <h3 className="font-bold text-lg text-[var(--foreground)]">Flipkart</h3>
+            <p className="text-sm text-[var(--text-secondary)]">Product data connected</p>
+            <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center justify-between">
+              <span className="text-xs text-[var(--text-secondary)]">Last sync: 22 min ago</span>
+              <button className="text-xs font-semibold text-[var(--accent)] hover:underline">Sync now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Quick Inventory Table */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 mt-4">
         <h2 className="text-xl font-bold tracking-tight text-[var(--foreground)]">Recent Inventory</h2>
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-sm">
           <div className="p-4 border-b border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--surface-2)]">
