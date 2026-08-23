@@ -30,26 +30,26 @@ export default function SignIn() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
 
       <div className="w-full max-w-sm relative z-10">
-        <div className="mb-8 text-center">
+        <div className="mb-4 text-center">
           <Link href="/" className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back
           </Link>
         </div>
 
         <Card className="border-[var(--border)] shadow-sm">
-          <CardHeader className="text-center pb-6">
-            <div className="mx-auto w-10 h-10 bg-[var(--accent)]/10 rounded-lg flex items-center justify-center mb-4">
+          <CardHeader className="text-center pb-4 pt-4">
+            <div className="mx-auto w-10 h-10 bg-[var(--accent)]/10 rounded-lg flex items-center justify-center mb-2">
               <Mic className="w-5 h-5 text-[var(--accent)]" />
             </div>
-            <CardTitle className="text-2xl text-[var(--foreground)]">Welcome back</CardTitle>
+            <CardTitle className="text-xl text-[var(--foreground)]">Welcome back</CardTitle>
             <CardDescription className="text-[var(--text-secondary)]">
               Sign in to continue shopping with VCKart.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 pb-4">
             <Button 
               variant="outline" 
-              className="w-full h-11 border-[var(--border)] hover:bg-[var(--surface-hover)] text-[var(--foreground)]"
+              className="w-full h-10 border-[var(--border)] hover:bg-[var(--surface-hover)] text-[var(--foreground)]"
               onClick={() => signIn('google', { callbackUrl: '/assistant' })}
             >
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -70,7 +70,7 @@ export default function SignIn() {
               </div>
             </div>
 
-            <form onSubmit={handleEmailSignIn} className="space-y-4">
+            <form onSubmit={handleEmailSignIn} className="space-y-3">
               <div className="space-y-2">
                 <label className="text-xs font-medium text-[var(--text-secondary)]">Email</label>
                 <Input 
@@ -78,7 +78,7 @@ export default function SignIn() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="h-11 bg-[var(--background)] border-[var(--border)] text-[var(--foreground)]"
+                  className="h-10 bg-[var(--background)] border-[var(--border)] text-[var(--foreground)]"
                   required
                 />
               </div>
@@ -89,13 +89,13 @@ export default function SignIn() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="h-11 bg-[var(--background)] border-[var(--border)] text-[var(--foreground)]"
+                  className="h-10 bg-[var(--background)] border-[var(--border)] text-[var(--foreground)]"
                   required
                 />
               </div>
               <Button 
                 type="submit"
-                className="w-full h-11 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white"
+                className="w-full h-10 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white"
                 disabled={loading}
               >
                 {loading ? 'Signing in...' : 'Sign in'}
@@ -110,12 +110,12 @@ export default function SignIn() {
           </CardContent>
         </Card>
         
-        <div className="mt-8 text-center space-y-4">
+        <div className="mt-6 text-center space-y-4">
           <p className="text-sm text-[var(--text-secondary)]">
             New to VCKart? <Link href="/auth/signup" className="text-[var(--accent)] font-medium hover:underline">Create account</Link>
           </p>
 
-          <div className="pt-6 border-t border-[var(--border)]">
+          <div className="pt-4 border-t border-[var(--border)]">
             <Link 
               href="/admin/login"
               className="group inline-flex items-center flex-col gap-1 text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors"
