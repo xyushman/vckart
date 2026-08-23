@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-location-assign-relative-destination */
 'use client';
 
 import { signIn } from 'next-auth/react';
@@ -82,29 +83,29 @@ export default function AdminLogin() {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
-              <label className="text-[13px] font-medium text-[#374151]">Email address</label>
+              <label className="text-sm font-medium text-slate-700">Email address</label>
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@company.com"
-                className="h-[48px] px-4 w-full rounded-[10px] border border-[#D1D5DB] bg-white text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6475F5]/20 focus:border-[#6475F5] transition-all"
+                className="h-12 px-4 w-full rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
                 required
               />
             </div>
             
             <div className="flex flex-col gap-2">
-              <label className="text-[13px] font-medium text-[#374151]">Password</label>
+              <label className="text-sm font-medium text-slate-700">Password</label>
               <input 
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="h-[48px] px-4 w-full rounded-[10px] border border-[#D1D5DB] bg-white text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6475F5]/20 focus:border-[#6475F5] transition-all"
+                className="h-12 px-4 w-full rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
                 required
               />
               <div className="flex justify-end mt-1">
-                <a href="#" className="text-[13px] font-medium" style={{ color: '#6475F5' }}>Forgot password?</a>
+                <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">Forgot password?</a>
               </div>
             </div>
 
