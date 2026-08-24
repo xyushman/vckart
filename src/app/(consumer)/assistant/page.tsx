@@ -26,7 +26,7 @@ interface Message {
 
 export default function AssistantWorkspace() {
   const { data: session } = useSession();
-  const [sessionId] = useState(`session-${Math.random().toString(36).substring(7)}`);
+  const [sessionId, setSessionId] = useState('');
   
   // Extract just the first name for the greeting, fallback to an empty string
   const firstName = session?.user?.name ? session.user.name.split(' ')[0] : '';
@@ -46,8 +46,17 @@ export default function AssistantWorkspace() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetchList();
+    let id = localStorage.getItem('vckart_session_id');
+    if (!id) {
+      id = `session-${Math.random().toString(36).substring(7)}`;
+      localStorage.setItem('vckart_session_id', id);
+    }
+    setSessionId(id);
   }, []);
+
+  useEffect(() => {
+    if (sessionId) fetchList();
+  }, [sessionId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
