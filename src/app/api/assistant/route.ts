@@ -102,11 +102,38 @@ Rules:
       const result = await model.generateContent(prompt);
       text = result.response.text();
     } catch (e: any) {
-      // Gracefully handle Gemini Free Tier 429 Rate Limits so the evaluator doesn't get a broken UI
       if (e.message?.includes('429') || e.message?.includes('quota') || e.message?.includes('exceeded')) {
+        // --- Fallback NLP Engine (Regex Heuristics) ---
+        // If Gemini fails, we gracefully degrade to local regex pattern matching
+        const lowerText = transcript.toLowerCase();
+        let fallbackIntent = "PRODUCT_SEARCH";
+        let fallbackQuery = transcript;
+        let fallbackMessage = "I'm operating in offline mode due to high traffic, but here is what I found.";
+        
+        if (lowerText.includes('add')) {
+          fallbackIntent = "ADD_TO_LIST";
+          fallbackMessage = "I'm in offline mode due to high traffic, but I've added that to your list!";
+        } else if (lowerText.includes('compare')) {
+          fallbackIntent = "COMPARE_PRODUCTS";
+          fallbackMessage = "Here is a quick comparison for you (Offline Mode).";
+        }
+        
+        // Basic entity extraction
+        const priceMatch = lowerText.match(/under (\d+)/);
+        let maxPrice = null;
+        if (priceMatch) {
+           maxPrice = parseInt(priceMatch[1]);
+           fallbackQuery = fallbackQuery.replace(priceMatch[0], '').trim();
+        }
+
+        // Clean up text
+        fallbackQuery = fallbackQuery.replace(/^(add|show me|find|search for|i need|looking for)\s+a?\s*/i, '').trim();
+
         text = JSON.stringify({
-          intent: "UNKNOWN",
-          replyMessage: "Wow, so many people are shopping right now that my AI brain hit its rate limit! Please wait 60 seconds and try again.",
+          intent: fallbackIntent,
+          searchQuery: fallbackQuery,
+          filters: maxPrice ? { maxPrice } : {},
+          replyMessage: fallbackMessage,
           awaitingInput: false
         });
       } else {
@@ -182,9 +209,6 @@ Rules:
     }
 
     if (newState.intent === 'ADD_TO_LIST' || newState.intent === 'SELECT_PRODUCT') {
-       // Logic to add to DB list
-       // For this MVP step, we will rely on the UI passing the exact productId in a separate call if needed,
-       // or we add the first result if selectedProductId is null
        let prodId = newState.selectedProductId;
        if (!prodId && currentState.currentResults?.length > 0) {
           prodId = currentState.currentResults[0].id;
@@ -204,12 +228,26 @@ Rules:
               }
             });
             finalMessage = `Added ${matchedProduct.name} to your list.`;
-            // Clear search state after adding
-            newState.searchQuery = null;
-            newState.filters = {};
-            newState.currentResults = [];
          }
+       } else if (newState.searchQuery || transcript.toLowerCase().includes('add')) {
+          // Robust Fallback: Add raw arbitrary items to list if no specific product was matched
+          const rawName = newState.searchQuery || transcript.replace(/add/i, '').trim();
+          await prisma.shoppingListItem.create({
+              data: {
+                sessionId,
+                rawProductName: rawName,
+                category: 'Added Manually',
+                quantity: newState.quantity || 1,
+                unit: newState.unit || 'item'
+              }
+          });
+          finalMessage = `Added ${rawName} to your list.`;
        }
+       
+       // Clear search state after adding
+       newState.searchQuery = null;
+       newState.filters = {};
+       newState.currentResults = [];
     }
 
     // Save updated state
