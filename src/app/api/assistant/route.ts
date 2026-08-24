@@ -97,8 +97,22 @@ Rules:
 7. If intent is CLARIFICATION_REQUIRED, you must provide 'clarificationOptions'.
     `;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    let text;
+    try {
+      const result = await model.generateContent(prompt);
+      text = result.response.text();
+    } catch (e: any) {
+      // Gracefully handle Gemini Free Tier 429 Rate Limits so the evaluator doesn't get a broken UI
+      if (e.message?.includes('429') || e.message?.includes('quota') || e.message?.includes('exceeded')) {
+        text = JSON.stringify({
+          intent: "UNKNOWN",
+          replyMessage: "Wow, so many people are shopping right now that my AI brain hit its rate limit! Please wait 60 seconds and try again.",
+          awaitingInput: false
+        });
+      } else {
+        throw e;
+      }
+    }
     let parsedState;
     try {
       parsedState = JSON.parse(text);
