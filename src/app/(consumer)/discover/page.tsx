@@ -2,6 +2,7 @@ import { Search, Compass, TrendingUp, Star } from 'lucide-react';
 import Link from 'next/link';
 import { prisma } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
 export default async function DiscoverPage() {
   // Fetch a few real products for the "Recommended" section
   const recommendedProducts = await prisma.product.findMany({
@@ -22,7 +23,7 @@ export default async function DiscoverPage() {
         <h2 className="text-lg font-semibold flex items-center gap-2"><Star className="w-5 h-5 text-[var(--accent)]" /> Recommended for you</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {recommendedProducts.map((prod) => (
-            <Link href="/app" key={prod.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl overflow-hidden group hover:border-[var(--accent)]/50 transition-all shadow-sm flex flex-col">
+            <Link href="/assistant" key={prod.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl overflow-hidden group hover:border-[var(--accent)]/50 transition-all shadow-sm flex flex-col">
               <div className="relative h-40 bg-[var(--surface-3)] overflow-hidden">
                 <img 
                   src={prod.imageUrl || `https://image.pollinations.ai/prompt/${encodeURIComponent(prod.name + ' minimal product')}?width=300&height=300&nologo=true&seed=${prod.id}`} 
@@ -47,7 +48,7 @@ export default async function DiscoverPage() {
         <h2 className="text-lg font-semibold flex items-center gap-2"><TrendingUp className="w-5 h-5 text-[var(--warning)]" /> Trending searches</h2>
         <div className="flex flex-wrap gap-3">
           {['Organic Honey', 'Wireless Earbuds', 'Running Shoes Under ₹3000', 'Brown Sugar 2kg'].map(chip => (
-            <Link href={`/app`} key={chip} className="px-4 py-2 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:border-[var(--accent)]/50 transition-colors shadow-sm">
+            <Link href={`/assistant`} key={chip} className="px-4 py-2 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:border-[var(--accent)]/50 transition-colors shadow-sm">
               {chip}
             </Link>
           ))}
