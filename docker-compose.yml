@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://vckart:vckart_pass@db:5432/vckart_db?schema=public
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=development_secret_only_change_in_production
+      # - GEMINI_API_KEY=your_api_key_here
+      # - GOOGLE_CLIENT_ID=your_google_id_here
+      # - GOOGLE_CLIENT_SECRET=your_google_secret_here
+    depends_on:
+      - db
+    networks:
+      - vckart-network
+
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: vckart
+      POSTGRES_PASSWORD: vckart_pass
+      POSTGRES_DB: vckart_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - vckart-network
+
+networks:
+  vckart-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
